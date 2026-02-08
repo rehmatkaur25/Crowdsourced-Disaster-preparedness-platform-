@@ -16,62 +16,62 @@ const Login = () => {
         e.preventDefault();
 
         // --- FAKE BACKEND START ---
-        console.log("Bypassing Backend...");
+        // console.log("Bypassing Backend...");
         
-        // 1. Create a Fake Token
-        localStorage.setItem("token", "fake-token-123");
-        localStorage.setItem("userName", "Test User");
+        // // 1. Create a Fake Token
+        // localStorage.setItem("token", "fake-token-123");
+        // localStorage.setItem("userName", "Test User");
 
-        // 2. Show Success
-        toast({ title: "Login Successful (Offline Mode)", description: "Welcome back!" });
+        // // 2. Show Success
+        // toast({ title: "Login Successful (Offline Mode)", description: "Welcome back!" });
 
-        // 3. Go to Dashboard
-        navigate("/");
+        // // 3. Go to Dashboard
+        // navigate("/");
         // --- FAKE BACKEND END ---
         
-        // try {
-        //     // 1. The Real Backend Connection
-        //     const response = await fetch('http://localhost:5000/api/users/login', {
-        //         method: 'POST',
-        //         headers: { 'Content-Type': 'application/json' },
-        //         body: JSON.stringify({
-        //             phone_number: phoneNumber, // Matches your Backend
-        //             password: password
-        //         })
-        //     });
+        try {
+            // 1. The Real Backend Connection
+            const response = await fetch('http://localhost:5000/api/users/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    phone_number: phoneNumber, // Matches your Backend
+                    password: password
+                })
+            });
 
-        //     const data = await response.json();
+            const data = await response.json();
 
-        //     if (response.ok) {
-        //         // 2. SAVE THE TOKEN (The "Wristband")
-        //         localStorage.setItem("token", data.token);
-        //         // Also save name to show in header if needed
-        //         if(data.user && data.user.name) {
-        //             localStorage.setItem("userName", data.user.name);
-        //         }
+            if (response.ok) {
+                // 2. SAVE THE TOKEN (The "Wristband")
+                localStorage.setItem("token", data.token);
+                // Also save name to show in header if needed
+                if(data.user && data.user.name) {
+                    localStorage.setItem("userName", data.user.name);
+                }
 
-        //         toast({
-        //             title: "Login Successful",
-        //             description: "Welcome back!",
-        //         });
+                toast({
+                    title: "Login Successful",
+                    description: "Welcome back!",
+                });
 
-        //         // 3. FIXED FLOW: GO TO DASHBOARD (MAP), NOT PROFILE
-        //         navigate("/"); // Assuming "/" is your Dashboard/Map page
-        //     } else {
-        //         toast({
-        //             variant: "destructive",
-        //             title: "Login Failed",
-        //             description: data.message || "Invalid credentials",
-        //         });
-        //     }
-        // } catch (error) {
-        //     console.error(error);
-        //     toast({
-        //         variant: "destructive",
-        //         title: "Connection Error",
-        //         description: "Is the Backend Server running?",
-        //     });
-        // }
+                // 3. FIXED FLOW: GO TO DASHBOARD (MAP), NOT PROFILE
+                navigate("/"); // Assuming "/" is your Dashboard/Map page
+            } else {
+                toast({
+                    variant: "destructive",
+                    title: "Login Failed",
+                    description: data.message || "Invalid credentials",
+                });
+            }
+        } catch (error) {
+            console.error(error);
+            toast({
+                variant: "destructive",
+                title: "Connection Error",
+                description: "Is the Backend Server running?",
+            });
+        }
     };
 
     return (

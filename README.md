@@ -194,3 +194,5 @@ Use these exact routes for your fetch calls:
 4.  **Commit:** `git commit -m "Description of frontend changes"`
 5.  **Push:** `git push origin main`
 6. pull the project again to get the updated file when new changes occur in the repo
+
+### for dependency u can just run npm install in both the folders seperately which will download the nodemodules as well as all the packages

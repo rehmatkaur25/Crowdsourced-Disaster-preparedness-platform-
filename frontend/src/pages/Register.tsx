@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,14 +11,45 @@ const Register = () => {
     const [phoneNumber, setPhoneNumber] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    // Default location to 0,0 to prevent backend crash if geolocation fails
+    const [location, setLocation] = useState({ latitude: 0, longitude: 0 });
+    
     const navigate = useNavigate();
     const { toast } = useToast();
 
-    // Default location (e.g., Bangalore) in case user blocks GPS
-    const defaultLocation = { latitude: 12.9716, longitude: 77.5946 };
+    // 1. Get User Location on Page Load
+    useEffect(() => {
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    setLocation({
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude
+                    });
+                },
+                (error) => {
+                    console.warn("Location permission denied, using default.", error);
+                    // Optional: Show a toast warning that location is off
+                }
+            );
+        }
+    }, []);
 
-    const registerUser = async (locationData: { latitude: number; longitude: number }) => {
+    const handleRegister = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        // 2. Client-side Validation
+        if (password !== confirmPassword) {
+            toast({
+                variant: "destructive",
+                title: "Passwords do not match",
+                description: "Please check your password again.",
+            });
+            return;
+        }
+
         try {
+            // 3. Send Data to Backend (Matching User.js requirements)
             const response = await fetch('http://localhost:5000/api/users/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -26,7 +57,8 @@ const Register = () => {
                     name: name,
                     phone_number: phoneNumber,
                     password: password,
-                    location: locationData // Sending the coordinates
+                    role: 'citizen', // Default role
+                    location: location // VITAL: Backend crashes without this!
                 })
             });
 
@@ -35,14 +67,14 @@ const Register = () => {
             if (response.ok) {
                 toast({
                     title: "Registration Successful",
-                    description: "Account created! Please login.",
+                    description: "You can now log in.",
                 });
                 navigate("/login");
             } else {
                 toast({
                     variant: "destructive",
                     title: "Registration Failed",
-                    description: data.message || "Something went wrong.",
+                    description: data.message || "Could not register user.",
                 });
             }
         } catch (error) {
@@ -50,49 +82,8 @@ const Register = () => {
             toast({
                 variant: "destructive",
                 title: "Connection Error",
-                description: "Is the Backend Server running?",
+                description: "Could not connect to the server.",
             });
-        }
-    };
-
-    const handleRegister = (e: React.FormEvent) => {
-        e.preventDefault();
-
-        // 1. Password Validation
-        if (password !== confirmPassword) {
-            toast({
-                variant: "destructive",
-                title: "Error",
-                description: "Passwords do not match.",
-            });
-            return;
-        }
-
-        // 2. Get Real GPS Location
-        if ("geolocation" in navigator) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    // Success: User allowed location
-                    const realLocation = {
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude
-                    };
-                    registerUser(realLocation);
-                },
-                (error) => {
-                    // Error: User blocked location or error occurred
-                    console.warn("Location access denied/failed. Using default.", error);
-                    toast({
-                        variant: "default", // distinct from error
-                        title: "Location Access Denied",
-                        description: "Using default location for registration.",
-                    });
-                    registerUser(defaultLocation);
-                }
-            );
-        } else {
-            // Fallback for very old browsers
-            registerUser(defaultLocation);
         }
     };
 
@@ -102,7 +93,7 @@ const Register = () => {
                 <CardHeader className="space-y-1">
                     <CardTitle className="text-2xl font-bold text-center">Create an account</CardTitle>
                     <CardDescription className="text-center">
-                        Enter your information to create your account
+                        Enter your details to create your account
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -111,7 +102,9 @@ const Register = () => {
                             <Label htmlFor="name">Full Name</Label>
                             <Input
                                 id="name"
-                                placeholder="Enter your full name"
+                                type="text"
+                                placeholder="John Doe"
+                                autoComplete="name" 
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 required
@@ -123,6 +116,7 @@ const Register = () => {
                                 id="phone"
                                 type="tel"
                                 placeholder="9876543210"
+                                autoComplete="tel"
                                 value={phoneNumber}
                                 onChange={(e) => setPhoneNumber(e.target.value)}
                                 required
@@ -133,6 +127,7 @@ const Register = () => {
                             <Input
                                 id="password"
                                 type="password"
+                                autoComplete="new-password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
@@ -143,13 +138,14 @@ const Register = () => {
                             <Input
                                 id="confirmPassword"
                                 type="password"
+                                autoComplete="new-password"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                 required
                             />
                         </div>
                         <Button type="submit" className="w-full">
-                            Create Account
+                            Register
                         </Button>
                     </form>
                 </CardContent>
@@ -157,7 +153,7 @@ const Register = () => {
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                         Already have an account?{" "}
                         <Link to="/login" className="text-primary hover:underline font-medium">
-                            Login
+                            Sign In
                         </Link>
                     </p>
                 </CardFooter>

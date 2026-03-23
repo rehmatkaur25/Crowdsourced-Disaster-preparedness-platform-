@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useToast } from "@/components/ui/use-toast";
 
 const Login = () => {
-    const [phoneNumber, setPhoneNumber] = useState(""); // Changed from email
+    const [phoneNumber, setPhoneNumber] = useState(""); 
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
     const { toast } = useToast();
@@ -15,27 +15,12 @@ const Login = () => {
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // --- FAKE BACKEND START ---
-        // console.log("Bypassing Backend...");
-        
-        // // 1. Create a Fake Token
-        // localStorage.setItem("token", "fake-token-123");
-        // localStorage.setItem("userName", "Test User");
-
-        // // 2. Show Success
-        // toast({ title: "Login Successful (Offline Mode)", description: "Welcome back!" });
-
-        // // 3. Go to Dashboard
-        // navigate("/");
-        // --- FAKE BACKEND END ---
-        
         try {
-            // 1. The Real Backend Connection
             const response = await fetch('http://localhost:5000/api/users/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    phone_number: phoneNumber, // Matches your Backend
+                    phone_number: phoneNumber, 
                     password: password
                 })
             });
@@ -43,9 +28,9 @@ const Login = () => {
             const data = await response.json();
 
             if (response.ok) {
-                // 2. SAVE THE TOKEN (The "Wristband")
+                // Save Token and User Info
                 localStorage.setItem("token", data.token);
-                // Also save name to show in header if needed
+                localStorage.setItem("userId", data.user.id);
                 if(data.user && data.user.name) {
                     localStorage.setItem("userName", data.user.name);
                 }
@@ -55,8 +40,7 @@ const Login = () => {
                     description: "Welcome back!",
                 });
 
-                // 3. FIXED FLOW: GO TO DASHBOARD (MAP), NOT PROFILE
-                navigate("/"); // Assuming "/" is your Dashboard/Map page
+                navigate("/"); 
             } else {
                 toast({
                     variant: "destructive",
@@ -86,12 +70,12 @@ const Login = () => {
                 <CardContent>
                     <form onSubmit={handleLogin} className="space-y-4">
                         <div className="space-y-2">
-                            {/* CHANGED TO PHONE NUMBER */}
                             <Label htmlFor="phone">Phone Number</Label>
                             <Input
                                 id="phone"
                                 type="tel"
                                 placeholder="9876543210"
+                                autoComplete="tel"
                                 value={phoneNumber}
                                 onChange={(e) => setPhoneNumber(e.target.value)}
                                 required
@@ -102,6 +86,7 @@ const Login = () => {
                             <Input
                                 id="password"
                                 type="password"
+                                autoComplete="current-password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required

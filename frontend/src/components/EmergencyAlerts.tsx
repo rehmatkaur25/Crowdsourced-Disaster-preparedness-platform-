@@ -59,9 +59,9 @@ const alerts = [
 ];
 
 const emergencyContacts = [
-  { name: "Emergency Services", number: "911", type: "Emergency" },
-  { name: "Disaster Hotline", number: "1-800-HELP", type: "Information" },
-  { name: "Community Coord.", number: "(555) 123-4567", type: "Local" }
+  { name: "Emergency Services", number: "112", type: "Emergency" },
+  { name: "District Disaster Control", number: "1077", type: "Disaster" },
+  { name: "Ambulance", number: "108", type: "Medical" }
 ];
 
 export const EmergencyAlerts = () => {
@@ -174,25 +174,6 @@ export const EmergencyAlerts = () => {
               </Button>
             </Card>
 
-            {/* Alert Preferences */}
-            <Card className="p-6 shadow-card">
-              <h4 className="font-semibold text-foreground mb-4">Alert Preferences</h4>
-              <div className="space-y-3">
-                {[
-                  { name: 'Weather Alerts', enabled: true },
-                  { name: 'Traffic Updates', enabled: true },
-                  { name: 'Community News', enabled: false },
-                  { name: 'Training Events', enabled: true }
-                ].map((pref, index) => (
-                  <div key={index} className="flex items-center justify-between">
-                    <span className="text-sm text-foreground">{pref.name}</span>
-                    <div className={`w-8 h-4 rounded-full ${pref.enabled ? 'bg-primary' : 'bg-muted'} relative cursor-pointer transition-colors`}>
-                      <div className={`w-3 h-3 rounded-full bg-white absolute top-0.5 transition-transform ${pref.enabled ? 'translate-x-4' : 'translate-x-0.5'}`}></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
 
             {/* Quick Response */}
             <Card className="p-6 shadow-card bg-emergency-red/5 border-emergency-red/20">
@@ -202,7 +183,7 @@ export const EmergencyAlerts = () => {
               </p>
               <Button variant="emergency" size="sm" className="w-full">
                 <Phone className="h-4 w-4" />
-                Call 911 Now
+                Call 112 Now
               </Button>
             </Card>
           </div>
